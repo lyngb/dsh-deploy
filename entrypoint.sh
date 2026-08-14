@@ -12,5 +12,10 @@ if [ -n "$DEEPSEEK_API_KEY" ] && ! grep -q "DEEPSEEK_API_KEY" "$DSH_HOME/.creden
   printf 'DEEPSEEK_API_KEY: %s\n' "$DEEPSEEK_API_KEY" >> "$DSH_HOME/.credentials.yaml"
 fi
 
-# 4) 启动 web profile：必须监听 0.0.0.0，Coolify 的代理和健康检查才能连进来
-exec dsh --profile web --host 0.0.0.0 --port "${PORT:-3080}"
+# 4) 诊断模式：循环重启 dsh 并打印输出（定位启动崩溃原因用；修好后改回单次启动）
+echo "=== dsh web starting (diagnostic loop) ==="
+while true; do
+  dsh --profile web --host 0.0.0.0 --port "${PORT:-3080}" 2>&1 || true
+  echo "=== dsh exited; restarting in 10s ==="
+  sleep 10
+done
