@@ -1,15 +1,16 @@
-# DSH (DeepSeek Harness) 云端镜像 —— 与本地一致：全局 npm 包 + 凭据文件机制
+# DSH (DeepSeek Harness) cloud image -- same as local: global npm package + credentials file
 FROM node:22-slim
 
-# 基础工具（git 等）
+# Base tools: git, TLS certs, and the toolchain node-pty needs to build from source
+# (python3 + make + g++ -- node:22-slim has none of these by default)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git ca-certificates \
+    && apt-get install -y --no-install-recommends git ca-certificates python3 make g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 DSH（与本地版本一致）
+# Install DSH (same version as local)
 RUN npm install -g @deepseek-ai/dsh@0.1.0-rc.6
 
-# 运行环境
+# Runtime env
 ENV DSH_HOME=/data/dsh \
     PORT=3080 \
     HOME=/root \
@@ -17,7 +18,7 @@ ENV DSH_HOME=/data/dsh \
 
 WORKDIR /workspace
 
-# 启动脚本：首次运行用环境变量生成凭据文件
+# Entrypoint: generate credentials file from env on first start
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
