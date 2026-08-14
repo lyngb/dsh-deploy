@@ -1,0 +1,19 @@
+# DSH 云端部署（docker compose，供本地试跑或 Coolify 的 Compose 部署）
+services:
+  dsh:
+    build: .
+    image: dsh:latest
+    restart: unless-stopped
+    ports:
+      - "3080:3080"
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:?请在 .env 中配置 DEEPSEEK_API_KEY}
+      - PORT=3080
+      - DSH_HOME=/data/dsh
+      - TZ=Asia/Shanghai
+    volumes:
+      - dsh-data:/data        # DSH 数据：profiles / 凭据 / 会话
+      - dsh-workspace:/workspace  # 云端工作区
+volumes:
+  dsh-data:
+  dsh-workspace:
